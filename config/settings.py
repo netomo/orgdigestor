@@ -86,9 +86,13 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'playground_tables',
+        'USER': 'digestor_user',
+        'PASSWORD': 'digestor_pass',
+        'HOST': 'postgres',
+        'PORT': '5432',
+    },
 }
 
 
@@ -155,3 +159,13 @@ SPECTACULAR_SETTINGS = {
         'defaultModelsExpandDepth': 0,
     },
 }
+
+
+# Celery Configuration
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
