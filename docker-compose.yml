@@ -31,6 +31,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - shared_data:/mnt/data
     ports:
       - "8000:8000"
     depends_on:
@@ -41,12 +42,29 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A orgdigestor worker --loglevel=info
+    command: celery -A orgdigestor worker --loglevel=info --concurrency=2
+    restart: always
+    scale: 4
     volumes:
       - .:/app
+      - shared_data:/mnt/data
     depends_on:
       - postgres
       - rabbitmq
 
+  celery-flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A orgdigestor flower --port=5555
+    restart: always
+
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+
+
 volumes:
     postgres_data:
+    shared_data:
