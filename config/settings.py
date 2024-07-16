@@ -163,9 +163,10 @@ SPECTACULAR_SETTINGS = {
 
 # Celery Configuration
 CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'
-CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_RESULT_BACKEND = 'db+postgresql://digestor_user:digestor_pass@postgres:5432/playground_tables'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
 

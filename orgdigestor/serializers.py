@@ -9,6 +9,12 @@ class OrganizationSerializer(serializers.ModelSerializer):
         model = Organization
         fields = ('id', 'name', 'country', 'industry', 'website', 'description', 'founded', 'number_of_employees')
 
+    def to_internal_value(self, data):
+        founded_str = data.get('founded')
+        if founded_str and len(founded_str) == 4:
+            data['founded'] = founded_str + '-01-01'
+        return super().to_internal_value(data)
+
 
 class OrganizationsFileDigestSerializer(serializers.Serializer):
     file = serializers.FileField(

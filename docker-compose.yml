@@ -23,12 +23,14 @@ services:
       RABBITMQ_DEFAULT_VHOST: "/"
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
+    restart: always
 
   digestor-app:
     build:
       context: .
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
+    restart: always
     volumes:
       - .:/app
       - shared_data:/mnt/data
@@ -42,9 +44,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A orgdigestor worker --loglevel=info --concurrency=2
+    command: celery -A orgdigestor worker --loglevel=info --concurrency=4
     restart: always
-    scale: 4
+#    scale: 4
     volumes:
       - .:/app
       - shared_data:/mnt/data
@@ -62,7 +64,7 @@ services:
     ports:
       - "5555:5555"
     depends_on:
-      - rabbitmq
+      - celery-worker
 
 
 volumes:
