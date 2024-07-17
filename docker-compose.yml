@@ -13,23 +13,26 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:alpine
     ports:
       - "5672:5672"
       - "15672:15672"
-    expose:
-      - 5672
+#    expose:
+#      - 5672
     environment:
       RABBITMQ_DEFAULT_VHOST: "/"
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
-    restart: always
+#    volumes:
+#      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   digestor-app:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     restart: always
     volumes:
       - .:/app
@@ -44,15 +47,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A orgdigestor worker --loglevel=info --concurrency=4
+    command: celery -A orgdigestor worker --loglevel=info -P gevent --concurrency=500
     restart: always
-#    scale: 4
+    scale: 2
     volumes:
       - .:/app
       - shared_data:/mnt/data
     depends_on:
-      - postgres
-      - rabbitmq
+      - digestor-app
 
   celery-flower:
     build:
@@ -60,12 +62,10 @@ services:
       dockerfile: Dockerfile
     command: celery -A orgdigestor flower --port=5555
     restart: always
-
     ports:
       - "5555:5555"
     depends_on:
       - celery-worker
-
 
 volumes:
     postgres_data:
