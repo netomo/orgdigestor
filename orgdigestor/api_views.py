@@ -4,6 +4,7 @@ import uuid
 from http import HTTPMethod
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.pagination import CursorPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
@@ -12,10 +13,16 @@ from orgdigestor.serializers import OrganizationSerializer, OrganizationsFileDig
 from orgdigestor.tasks import process_organizations_csv
 
 
+class OrganizationPagination(CursorPagination):
+    page_size = 10
+    ordering = 'id'
+
+
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
     parser_classes = (MultiPartParser, FormParser)
+    pagination_class = OrganizationPagination
 
     @action(
         detail=False,
